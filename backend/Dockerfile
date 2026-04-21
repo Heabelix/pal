@@ -1,10 +1,13 @@
-FROM eclipse-temurin:21-jdk AS build
+FROM golang:1.22-alpine AS builder
 WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
-RUN ./mvnw package -DskipTests -q
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o server ./cmd/server
 
-FROM eclipse-temurin:21-jre
+FROM alpine:3.19
+RUN apk add --no-cache ca-certificates tzdata
 WORKDIR /app
-COPY --from=build /app/target/quarkus-app/ ./quarkus-app/
+COPY --from=builder /app/server .
 EXPOSE 8080
-CMD ["java", "-jar", "quarkus-app/quarkus-run.jar"]
+CMD ["./server"]

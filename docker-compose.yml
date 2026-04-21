@@ -25,10 +25,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: jdbc:mysql://mysql:3306/paldb?useSSL=false&serverTimezone=UTC&characterEncoding=utf8mb4
-      DATABASE_USER: pal
-      DATABASE_PASSWORD: pal
-      QUARKUS_PROFILE: prod
+      DATABASE_DSN: "pal:pal@tcp(mysql:3306)/paldb?parseTime=true&charset=utf8mb4&loc=UTC"
+      PORT: "8080"
     ports:
       - "8080:8080"
     depends_on:
