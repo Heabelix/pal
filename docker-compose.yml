@@ -1,35 +1,38 @@
 version: "3.9"
 
 services:
-  postgres:
-    image: postgres:16-alpine
+  mysql:
+    image: mysql:8.0
     environment:
-      POSTGRES_DB: paldb
-      POSTGRES_USER: pal
-      POSTGRES_PASSWORD: pal
+      MYSQL_DATABASE: paldb
+      MYSQL_USER: pal
+      MYSQL_PASSWORD: pal
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - mysqldata:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pal -d paldb"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "pal", "-ppal"]
       interval: 5s
       timeout: 3s
-      retries: 5
+      retries: 10
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: jdbc:postgresql://postgres:5432/paldb
+      DATABASE_URL: jdbc:mysql://mysql:3306/paldb?useSSL=false&serverTimezone=UTC&characterEncoding=utf8mb4
       DATABASE_USER: pal
       DATABASE_PASSWORD: pal
       QUARKUS_PROFILE: prod
     ports:
       - "8080:8080"
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
 
   frontend:
@@ -44,4 +47,4 @@ services:
       - backend
 
 volumes:
-  pgdata:
+  mysqldata:

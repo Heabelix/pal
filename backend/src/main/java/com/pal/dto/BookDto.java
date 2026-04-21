@@ -43,4 +43,17 @@ public class BookDto {
         dto.notes = book.notes;
         return dto;
     }
+
+    public Book toBook() {
+        Book b = new Book();
+        b.title = this.title;
+        b.author = this.author;
+        b.isbn = this.isbn;
+        b.coverUrl = this.coverUrl;
+        b.status = this.status != null ? this.status : Book.Status.A_LIRE;
+        b.pagesTotal = this.pagesTotal;
+        b.pagesRead = this.pagesRead != null ? this.pagesRead : 0;
+        b.notes = this.notes;
+        return b;
+    }
 }

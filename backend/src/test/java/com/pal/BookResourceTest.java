@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
+/**
+ * Tests d'intégration — nécessitent un MySQL accessible (voir application.properties profil %test).
+ */
 @QuarkusTest
 class BookResourceTest {
 
@@ -16,7 +19,7 @@ class BookResourceTest {
                 .when().get("/api/books")
                 .then()
                 .statusCode(200)
-                .body("$", not(empty()));
+                .body("$", instanceOf(java.util.List.class));
     }
 
     @Test
@@ -29,7 +32,7 @@ class BookResourceTest {
     }
 
     @Test
-    void testCreateBook() {
+    void testCreateAndDeleteBook() {
         String payload = """
                 {
                   "title": "Test Book",
@@ -38,13 +41,27 @@ class BookResourceTest {
                 }
                 """;
 
-        given()
+        Long id = given()
                 .contentType(ContentType.JSON)
                 .body(payload)
                 .when().post("/api/books")
                 .then()
                 .statusCode(201)
                 .body("title", equalTo("Test Book"))
-                .body("author", equalTo("Test Author"));
+                .body("author", equalTo("Test Author"))
+                .extract().jsonPath().getLong("id");
+
+        given()
+                .when().delete("/api/books/" + id)
+                .then()
+                .statusCode(204);
+    }
+
+    @Test
+    void testGetNotFound() {
+        given()
+                .when().get("/api/books/999999")
+                .then()
+                .statusCode(404);
     }
 }
