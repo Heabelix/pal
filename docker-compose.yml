@@ -1,39 +1,20 @@
 version: "3.9"
 
-services:
-  mysql:
-    image: mysql:8.0
-    container_name: pal-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_CHARACTER_SET_SERVER: utf8mb4
-      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
-    ports:
-      - "${MYSQL_PORT}:3306"
-    volumes:
-      - mysqldata:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+# MySQL est géré par mysql/docker-compose.yml
+# Démarrer d'abord : cd mysql && docker compose up -d
 
+services:
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      DATABASE_DSN: "${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mysql:3306)/${MYSQL_DATABASE}?parseTime=true&charset=utf8mb4&loc=UTC"
+      DATABASE_DSN: ${DATABASE_DSN}
       PORT: "${BACKEND_PORT}"
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
-    depends_on:
-      mysql:
-        condition: service_healthy
+    networks:
+      - pal-network
 
   frontend:
     build:
@@ -45,6 +26,10 @@ services:
       - "${FRONTEND_PORT}:3000"
     depends_on:
       - backend
+    networks:
+      - pal-network
 
-volumes:
-  mysqldata:
+networks:
+  pal-network:
+    external: true
+    name: pal-network

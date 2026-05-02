@@ -16,6 +16,8 @@ services:
       - "${MYSQL_PORT}:3306"
     volumes:
       - mysqldata:/var/lib/mysql
+    networks:
+      - pal-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
       interval: 5s
@@ -32,9 +34,16 @@ services:
     restart: unless-stopped
     ports:
       - "${ADMINER_PORT}:8080"
+    networks:
+      - pal-network
     depends_on:
       mysql:
         condition: service_healthy
 
 volumes:
   mysqldata:
+
+networks:
+  pal-network:
+    name: pal-network
+    driver: bridge
