@@ -16,10 +16,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Env
+# Env — ignorer les .env mais garder les .env.example
+.env
 .env.local
 .env.production
 .env*.local
+mysql/.env
+gitea/.env
 
 # OS
 .DS_Store

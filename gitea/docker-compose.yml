@@ -10,17 +10,17 @@ services:
       USER_GID: 1000
       GITEA__database__DB_TYPE: mysql
       GITEA__database__HOST: gitea-mysql:3306
-      GITEA__database__NAME: gitea
-      GITEA__database__USER: gitea
-      GITEA__database__PASSWD: gitea
-      GITEA__server__DOMAIN: localhost
+      GITEA__database__NAME: ${GITEA_DB_NAME}
+      GITEA__database__USER: ${GITEA_DB_USER}
+      GITEA__database__PASSWD: ${GITEA_DB_PASSWORD}
+      GITEA__server__DOMAIN: ${GITEA_DOMAIN}
       GITEA__server__HTTP_PORT: 3000
-      GITEA__server__ROOT_URL: http://localhost:3000
-      GITEA__server__SSH_PORT: 2222
-      GITEA__service__DISABLE_REGISTRATION: false
+      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL}
+      GITEA__server__SSH_PORT: ${GITEA_SSH_PORT}
+      GITEA__service__DISABLE_REGISTRATION: ${GITEA_DISABLE_REGISTRATION}
     ports:
-      - "3000:3000"
-      - "2222:22"
+      - "${GITEA_HTTP_PORT}:3000"
+      - "${GITEA_SSH_PORT}:22"
     volumes:
       - giteadata:/data
       - /etc/timezone:/etc/timezone:ro
@@ -34,16 +34,16 @@ services:
     container_name: pal-gitea-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: gitea
-      MYSQL_USER: gitea
-      MYSQL_PASSWORD: gitea
+      MYSQL_ROOT_PASSWORD: ${GITEA_DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${GITEA_DB_NAME}
+      MYSQL_USER: ${GITEA_DB_USER}
+      MYSQL_PASSWORD: ${GITEA_DB_PASSWORD}
       MYSQL_CHARACTER_SET_SERVER: utf8mb4
       MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
     volumes:
       - gitea-mysqldata:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "gitea", "-pgitea"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${GITEA_DB_USER}", "-p${GITEA_DB_PASSWORD}"]
       interval: 5s
       timeout: 3s
       retries: 10
