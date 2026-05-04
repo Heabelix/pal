@@ -6,20 +6,20 @@ services:
     container_name: pal-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: paldb
+      MYSQL_USER: pal
+      MYSQL_PASSWORD: pal
       MYSQL_CHARACTER_SET_SERVER: utf8mb4
       MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
     ports:
-      - "${MYSQL_PORT}:3306"
+      - "3306:3306"
     volumes:
       - mysqldata:/var/lib/mysql
     networks:
       - pal-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "pal", "-ppal"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -33,7 +33,7 @@ services:
     container_name: pal-adminer
     restart: unless-stopped
     ports:
-      - "${ADMINER_PORT}:8080"
+      - "8082:8080"
     networks:
       - pal-network
     depends_on:

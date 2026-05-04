@@ -9,10 +9,10 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      DATABASE_DSN: ${DATABASE_DSN}
-      PORT: "${BACKEND_PORT}"
+      DATABASE_DSN: "pal:pal@tcp(pal-mysql:3306)/paldb?parseTime=true&charset=utf8mb4&loc=UTC"
+      PORT: "8080"
     ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
+      - "8080:8080"
     networks:
       - pal-network
 
@@ -21,9 +21,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_API_URL: "http://backend:8080"
     ports:
-      - "${FRONTEND_PORT}:3000"
+      - "3000:3000"
     depends_on:
       - backend
     networks:
